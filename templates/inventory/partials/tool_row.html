@@ -1,0 +1,51 @@
+{% load ui_extras %}
+<tr data-drawer="{% url 'inventory:drawer' tool.pk %}" class="adaptive-row">
+  <td class="sticky left-0 bg-panel" onclick="stopRow(event)">
+    <input type="checkbox" class="checkbox" data-row-id="{{ tool.pk }}" aria-label="Select {{ tool.sku }}"
+           onchange="updateBulkCount(this)">
+  </td>
+  <td class="num text-cyan-300">{{ tool.sku }}</td>
+  <td class="text-ink truncate max-w-[220px]" title="{{ tool.name }}{% if tool.model_number %} · {{ tool.model_number }}{% endif %}">
+    {{ tool.name }}
+    {% if tool.checkouts.open %}<span class="badge badge-sky ml-1">Out</span>{% endif %}
+  </td>
+  <td class="text-ink-3 truncate max-w-[140px]">{{ tool.category.name }}</td>
+  <td class="num text-ink-2">{{ tool.location.code }}</td>
+  <td class="text-ink-3" x-show="!hidden.includes('warehouse')">{{ tool.location.warehouse }}</td>
+  <td class="num-cell {% if tool.stock_state == 'out' %}text-rose-400 font-semibold{% elif tool.stock_state == 'low' %}text-amber-400 font-semibold{% else %}text-ink{% endif %}">
+    {{ tool.quantity_on_hand }}
+  </td>
+  <td class="num-cell text-ink-3">{{ tool.reorder_level }}</td>
+  <td class="num-cell text-ink-2">{{ tool.unit_cost|money2 }}</td>
+  <td class="num-cell text-ink-2" x-show="!hidden.includes('value')">{{ tool.total_value|money2 }}</td>
+  <td>
+    <span class="badge {% if tool.status == 'available' %}badge-emerald{% elif tool.status == 'checked_out' %}badge-sky{% elif tool.status == 'in_maintenance' %}badge-amber{% elif tool.status == 'lost' %}badge-rose{% else %}badge-slate{% endif %}">
+      {% if tool.status == 'checked_out' %}Checked Out{% elif tool.status == 'in_maintenance' %}In Maint.{% else %}{{ tool.get_status_display }}{% endif %}
+    </span>
+  </td>
+  <td class="text-ink-3" x-show="!hidden.includes('condition')">{{ tool.get_condition_display }}</td>
+  <td class="num text-ink-3 !text-2xs" x-show="!hidden.includes('updated')" title="{{ tool.updated_at }}">{{ tool.updated_at|date:"m-d" }}</td>
+  <td class="text-right" onclick="stopRow(event)">
+    {% if nav_role in 'Admin' or nav_role == 'Storekeeper' %}
+    <div class="flex items-center justify-end gap-1" x-show="!hidden.includes('quickedit')" x-cloak>
+      <form id="qe-{{ tool.pk }}" class="flex items-center gap-1"
+            method="post" action="{% url 'inventory:quick_edit' %}">
+        {% csrf_token %}
+        <input type="hidden" name="tool_id" value="{{ tool.pk }}">
+        <input type="hidden" name="back" value="{{ request.get_full_path }}">
+        <input name="quantity" value="{{ tool.quantity_on_hand }}" type="number" min="0"
+               class="input num h-6 w-14 py-0 text-right" aria-label="New quantity for {{ tool.sku }}">
+        <select name="status" class="select h-6 py-0 w-20 text-2xs" aria-label="Status for {{ tool.sku }}">
+          <option value="">Status…</option>
+          {% for value, label in statuses %}
+            <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-sm !h-6 !px-1.5" type="submit" title="Save quick edit">↵</button>
+      </form>
+    </div>
+    {% else %}
+      <span class="label-cap !text-[9px]">read-only</span>
+    {% endif %}
+  </td>
+</tr>

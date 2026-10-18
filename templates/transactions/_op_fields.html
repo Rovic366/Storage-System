@@ -1,0 +1,29 @@
+{% load ui_extras %}
+{% if form.non_field_errors %}
+  <div class="rounded border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-300">
+    {{ form.non_field_errors.0 }}
+  </div>
+{% endif %}
+<p class="grid grid-cols-1 gap-x-2 md:grid-cols-2">
+  <label class="md:col-span-2">
+    <span class="field-label">Tool SKU / barcode</span>
+    {{ form.sku }}
+    <p class="min-h-2 text-2xs text-rose-400">{{ form.sku.errors.0|default:'' }}</p>
+  </label>
+  {% if form.quantity %}
+    <label><span class="field-label">Quantity</span>{{ form.quantity }}
+      <p class="min-h-2 text-2xs text-rose-400">{{ form.quantity.errors.0|default:'' }}</p></label>
+  {% endif %}
+  {% if form.to_location %}
+    <label><span class="field-label">Destination bin</span>{{ form.to_location }}
+      <p class="min-h-2 text-2xs text-rose-400">{{ form.to_location.errors.0|default:'' }}</p></label>
+  {% endif %}
+  {% if form.delta %}
+    <label><span class="field-label">Delta (±)</span>{{ form.delta }}
+      <p class="min-h-2 text-2xs text-rose-400">{{ form.delta.errors.0|default:'' }}</p></label>
+  {% endif %}
+  {% if form.reference_no %}
+    <label><span class="field-label">Reference</span>{{ form.reference_no }}</label>
+  {% endif %}
+  <label><span class="field-label">Note</span>{{ form.notes }}</label>
+</p>

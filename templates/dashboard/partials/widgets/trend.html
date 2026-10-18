@@ -1,0 +1,19 @@
+{% load ui_extras %}
+<section class="panel col-span-12 flex min-h-0 flex-col xl:col-span-5" aria-label="Stock movement trend">
+  <header class="panel-h">
+    <h2 class="panel-title">Stock Movement Trend</h2>
+    <div class="flex items-center gap-1 text-2xs">
+      <a class="btn btn-sm !h-5 !px-1.5 {% if filters.range != '90' %}bg-cyan-500/20 text-cyan-300{% endif %}"
+         href="?range=30&wh={{ filters.wh }}">30d</a>
+      <a class="btn btn-sm !h-5 !px-1.5 {% if filters.range == '90' %}bg-cyan-500/20 text-cyan-300{% endif %}"
+         href="?range=90&wh={{ filters.wh }}">90d</a>
+    </div>
+  </header>
+  <div class="panel-body p-2">
+    {{ charts.trend|json_script:"chart-data-trend" }}
+    <div class="h-[168px]">
+      <canvas data-chart="trend"
+              data-summary="Line chart: received, issued and returned units per day over the last {{ filters.range }} days."></canvas>
+    </div>
+  </div>
+</section>

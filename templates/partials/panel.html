@@ -1,0 +1,15 @@
+<section id="{{ panel_id|default:'panel' }}" class="panel flex min-h-0 flex-col" aria-label="{{ title }}">
+  <header class="panel-h">
+    <h2 class="panel-title flex items-center gap-1.5 min-w-0">
+      {{ title|default:"Panel" }}
+      {% if info %}
+        <span class="tooltip shrink-0" tabindex="0" aria-label="{{ info }}">
+          <svg viewBox="0 0 24 24" class="size-3 text-ink-3" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+          <span class="tooltip-body">{{ info }}</span>
+        </span>
+      {% endif %}
+    </h2>
+    <div class="flex items-center gap-1">{% block panel_actions %}{% endblock %}</div>
+  </header>
+  <div class="panel-body">{% block panel_body %}{% endblock %}</div>
+</section>

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load ui_extras %}
+
+{% block title %}Stock ops{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-2 pb-6">
+  <div class="flex h-9 items-center gap-2">
+    <h1 class="text-sm font-bold tracking-wide text-ink">STOCK OPS</h1>
+    <a class="btn btn-sm ml-auto" href="{% url 'transactions:checkout_list' %}">Checkouts ›</a>
+    <a class="btn btn-sm" href="{% url 'transactions:checkout_new' %}">+ Fast checkout</a>
+  </div>
+
+  {# tab strip #}
+  <div class="panel flex h-9 items-center gap-0.5 px-1">
+    {% for key, label in op_labels.items %}
+      <a href="{% url 'transactions:ops' key %}"
+         class="navlink {% if op == key %}active{% endif %}">{{ label }}</a>
+    {% endfor %}
+    <span class="ml-auto num text-2xs text-ink-3 pr-1">Scan SKU or barcode; Enter submits</span>
+  </div>
+
+  {% for key, label in op_labels.items %}
+  <div class="panel {% if op != key %}hidden{% endif %}" id="op-{{ key }}">
+    <div class="panel-h"><h2 class="panel-title">{{ label }}</h2></div>
+    <form method="post" action="{% url 'transactions:op_submit' key %}" autocomplete="off"
+          class="space-y-1.5 p-2.5">
+      {% csrf_token %}
+      {% if key == 'receive' %}
+        {% with f=submitted.receive|default:forms.receive %}
+          {% include "transactions/_op_fields.html" with form=f op=key %}
+        {% endwith %}
+      {% elif key == 'issue' %}
+        {% with f=submitted.issue|default:forms.issue %}
+          {% include "transactions/_op_fields.html" with form=f op=key %}
+        {% endwith %}
+      {% elif key == 'transfer' %}
+        {% with f=submitted.transfer|default:forms.transfer %}
+          {% include "transactions/_op_fields.html" with form=f op=key %}
+        {% endwith %}
+      {% else %}
+        {% with f=submitted.adjust|default:forms.adjust %}
+          {% include "transactions/_op_fields.html" with form=f op=key %}
+        {% endwith %}
+      {% endif %}
+      <div class="flex justify-end pt-1">
+        <button type="submit" class="btn btn-primary">{{ label }} →</button>
+      </div>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

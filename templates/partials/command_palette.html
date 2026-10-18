@@ -1,0 +1,49 @@
+<x-palette-root x-data="palette" class="hidden" x-show="paletteOpen"
+                @keydown.window="onKey($event)" x-cloak>
+  <div class="fixed inset-0 z-50 flex items-start justify-center bg-surface/70 pt-[12vh]"
+       @click="paletteOpen=false">
+    <div class="w-[720px] max-w-[92vw] rounded-md border border-hairline bg-panel"
+         @click.stop role="dialog" aria-label="Global search">
+      <div class="flex items-center gap-2 border-b border-hairline px-3">
+        <svg viewBox="0 0 24 24" class="size-4 text-ink-3" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input x-ref="input" x-model="q" @input.debounce.250ms="search"
+               class="h-10 w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink-3"
+               placeholder="Search SKU, tool name, barcode…" aria-label="Search tools"
+               @keydown.escape.window="paletteOpen=false"
+               @keydown.enter="go()" @keydown.arrow-down.prevent="move(1)" @keydown.arrow-up.prevent="move(-1)">
+        <span class="kbd">esc</span>
+      </div>
+      <div class="max-h-[50vh] overflow-y-auto scroll-thin p-1.5">
+        <template x-if="loading">
+          <div class="space-y-1.5 p-2">
+            <div class="skeleton h-8 w-full"></div>
+            <div class="skeleton h-8 w-full"></div>
+            <div class="skeleton h-8 w-2/3"></div>
+          </div>
+        </template>
+        <template x-for="(r, i) in results" :key="r.sku + r.url">
+          <a :href="r.url" class="flex items-center gap-2.5 rounded px-2 py-1.5 text-xs"
+             :class="i === index ? 'bg-cyan-500/10' : 'hover:bg-panel-2'" @mouseenter="index=i">
+            <span class="num w-28 shrink-0 truncate text-cyan-300" x-text="r.sku"></span>
+            <span class="truncate text-ink" x-text="r.name"></span>
+            <span class="label-cap !text-[9px] ml-auto" x-text="r.state"></span>
+            <span class="num text-ink-3" x-text="r.qty"></span>
+            <span class="hidden lg:inline text-2xs text-ink-3" x-text="r.location"></span>
+          </a>
+        </template>
+        <template x-if="!loading && q && !results.length">
+          <p class="p-2 text-xs text-ink-3">No tools match “<span x-text="q"></span>”.</p>
+        </template>
+        <template x-if="!q">
+          <div class="p-2 text-2xs text-ink-3 leading-relaxed">
+            Type to search tools. <span class="kbd">/</span> opens this palette on any page.
+          </div>
+        </template>
+      </div>
+      <div class="flex items-center justify-between border-t border-hairline px-3 py-1.5 text-2xs text-ink-3">
+        <span><span class="kbd">↑↓</span> navigate · <span class="kbd">↵</span> open tool</span>
+        <span class="num" x-text="count + ' results'"></span>
+      </div>
+    </div>
+  </div>
+</x-palette-root>

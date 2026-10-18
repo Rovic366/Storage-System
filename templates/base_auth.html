@@ -1,0 +1,23 @@
+{% load static tailwind_tags %}<!DOCTYPE html>
+<html lang="en" class="dark" style="height:100%">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Storage OS{% endblock %}</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('sos-theme');
+        var d = document.documentElement;
+        d.classList.remove('dark', 'light');
+        d.classList.add(t === 'light' ? 'light' : 'dark');
+      } catch (e) {}
+    })();
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  {% tailwind_css %}
+</head>
+<body class="h-full bg-surface font-sans antialiased text-ink">
+  {% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-2 pb-6">
+  <div class="flex h-9 items-center gap-2">
+    <h1 class="text-sm font-bold tracking-wide text-ink">REPORTS</h1>
+  </div>
+
+  <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+    {% for slug, title, blurb in reports %}
+      <a class="panel block p-2.5 transition-colors hover:border-cyan-500/40"
+         href="{% url 'reports:table' slug %}">
+        <h2 class="text-xs font-bold tracking-wide text-ink">{{ title }}</h2>
+        <p class="mt-0.5 text-2xs text-ink-3">{{ blurb }}</p>
+        <div class="mt-2 flex items-center gap-1.5 text-2xs">
+          <span class="label-cap !text-[9px]">Preview</span>
+          <span class="num text-ink-3">HTML</span>
+          <span class="text-ink-3">·</span>
+          <span class="num text-ink-3">CSV</span>
+          <span class="text-ink-3">·</span>
+          <span class="num text-ink-3">PDF</span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+
+  <div class="panel p-2.5 text-xs text-ink-3 leading-relaxed">
+    <span class="label-cap">Filters</span> All datasets accept <code class="kbd">?days=30</code>,
+    <code class="kbd">?start=2026-01-01&amp;end=2026-03-01</code> and
+    <code class="kbd">?wh=W1</code> on the HTML preview, CSV and PDF outputs alike.
+    Exports are written to the audit trail.
+  </div>
+</div>
+{% endblock %}

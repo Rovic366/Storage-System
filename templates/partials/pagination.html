@@ -1,0 +1,38 @@
+{% load ui_extras %}
+<div class="flex items-center justify-between">
+  <div class="flex items-center gap-2">
+    <span class="label-cap">Rows</span>
+    <b class="num text-xs text-ink">{{ paginator.count }}</b>
+    <label class="ml-1 flex items-center gap-1">
+      <select class="select !h-6 !py-0 w-14 text-2xs" aria-label="Rows per page"
+              onchange="var o=this.selectedOptions[0].dataset.url; if(o){ location.href = o; }">
+        {% for size in page_sizes %}
+          {% with kv="page_size="|add:size %}
+          <option value="{{ size }}" {% if page_size == size %}selected{% endif %}
+                  data-url="?{{ querystring|set_query:kv|add:"&page=1" }}">{{ size }}</option>
+          {% endwith %}
+        {% endfor %}
+      </select>
+      <span class="label-cap">per page</span>
+    </label>
+  </div>
+  <div class="flex items-center gap-1 text-xs">
+    {% if page_obj.has_previous %}
+      {% with kv="page="|add:page_obj.previous_page_number %}
+      <a class="btn btn-sm"
+         href="?{{ querystring|set_query:kv }}"
+         {% if fragment %}hx-get="?{{ querystring|set_query:kv }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true"{% endif %}
+         aria-label="Previous page">‹ Prev</a>
+      {% endwith %}
+    {% endif %}
+    <span class="num text-ink-2 px-1">Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      {% with kv="page="|add:page_obj.next_page_number %}
+      <a class="btn btn-sm"
+         href="?{{ querystring|set_query:kv }}"
+         {% if fragment %}hx-get="?{{ querystring|set_query:kv }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true"{% endif %}
+         aria-label="Next page">Next ›</a>
+      {% endwith %}
+    {% endif %}
+  </div>
+</div>

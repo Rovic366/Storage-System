@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load ui_extras %}
+
+{% block title %}Checkouts{% endblock %}
+{% block content %}
+<div class="space-y-2 pb-6">
+  <div class="flex h-9 items-center gap-2">
+    <h1 class="text-sm font-bold tracking-wide text-ink">CHECKOUTS</h1>
+    <a class="btn btn-primary ml-auto" href="{% url 'transactions:checkout_new' %}">+ Fast checkout</a>
+  </div>
+
+  {# tabs + search #}
+  <div class="panel flex h-9 items-center gap-0.5 px-1">
+    <a class="navlink {% if tab == 'open' %}active{% endif %}"
+       href="{% url 'transactions:checkout_list' %}?tab=open">Open</a>
+    <a class="navlink {% if tab == 'overdue' %}active{% endif %}"
+       href="{% url 'transactions:checkout_list' %}?tab=overdue">
+      Overdue <b class="num ml-0.5 text-rose-400">{{ overdue_count }}</b></a>
+    <a class="navlink {% if tab == 'returned' %}active{% endif %}"
+       href="{% url 'transactions:checkout_list' %}?tab=returned">Returned</a>
+    <form class="ml-auto flex items-center gap-1 pr-1" method="get"
+          action="{% url 'transactions:checkout_list' %}">
+      <input type="hidden" name="tab" value="{{ tab }}">
+      <input name="q" value="{{ request.GET.q }}" class="input !h-6 !py-0 w-44 text-2xs"
+             placeholder="SKU / tool / borrower…" aria-label="Search checkouts">
+      <button class="btn btn-sm" type="submit">Go</button>
+    </form>
+  </div>
+
+  <div class="panel min-h-0 flex-1 overflow-auto scroll-thin">
+    <table class="table-dense">
+      <thead>
+        <tr>
+          <th>SKU</th><th>Tool</th><th>Borrower</th>
+          <th>Checked out</th><th>Due</th>
+          {% if tab == 'returned' %}<th>Returned</th>{% endif %}
+          <th>By</th><th>Condition in</th><th class="!text-right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for co in checkouts %}
+          <tr>
+            <td class="num text-cyan-300"><a class="hover:underline" href="{% url 'inventory:detail' co.tool_id %}">{{ co.tool.sku }}</a></td>
+            <td class="text-ink truncate max-w-[200px]">{{ co.tool.name }}</td>
+            <td class="text-ink-2">{{ co.borrower.username }}</td>
+            <td class="num text-ink-3">{{ co.checked_out_at|date:"Y-m-d H:i" }}</td>
+            <td class="num {% if tab == 'overdue' %}text-rose-400 font-semibold{% elif co.due_at %}text-ink-2{% endif %}">
+              {{ co.due_at|date:"Y-m-d H:i" }}
+            </td>
+            {% if tab == 'returned' %}
+              <td class="num text-emerald-400">{{ co.returned_at|date:"Y-m-d H:i" }}</td>
+            {% endif %}
+            <td class="text-ink-3">{{ co.issued_by.username }}</td>
+            <td class="text-ink-3">{{ co.condition_in|default:"—" }}</td>
+            <td class="text-right" >
+              {% if not co.returned_at %}
+                <a class="btn btn-sm {% if tab == 'overdue' %}btn-primary{% endif %}"
+                   href="{% url 'transactions:checkout_return' co.pk %}">Return</a>
+              {% else %}
+                {% if co.notes %}<span class="text-2xs text-ink-3" title="{{ co.notes }}">{{ co.notes|truncatechars:24 }}</span>{% endif %}
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="9" class="py-6 text-center text-ink-3">Nothing here.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="flex justify-end px-1">
+    {% include "partials/pagination.html" with page_obj=page_obj paginator=paginator page_size=page_obj.paginator.per_page querystring=querystring %}
+  </div>
+</div>
+{% endblock %}

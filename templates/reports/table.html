@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load ui_extras %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="space-y-2 pb-6">
+  <div class="flex h-9 items-center gap-2">
+    <a class="label-cap text-cyan-300 hover:underline" href="{% url 'reports:index' %}">Reports</a>
+    <span class="text-ink-3">/</span>
+    <h1 class="text-sm font-bold tracking-wide text-ink">{{ title|upper }}</h1>
+    {% for key, value in meta.items %}
+      <span class="badge badge-slate num text-2xs">{{ key|title }}: {{ value|truncatechars:32 }}</span>
+    {% endfor %}
+    <div class="ml-auto flex gap-1.5">
+      <a class="btn btn-sm" href="{% url 'reports:export' slug|add:".csv" %}">CSV</a>
+      <a class="btn btn-sm" href="{% url 'reports:export' slug|add:".pdf" %}">PDF</a>
+    </div>
+  </div>
+
+  {# range controls #}
+  <form class="panel flex flex-wrap items-center gap-1.5 px-2 py-1.5" method="get">
+    <label class="flex items-center gap-1"><span class="label-cap !text-[9px]">Days</span>
+      <input name="days" value="{{ request.GET.days|default:'' }}" class="input num !h-6 !py-0 w-14 text-2xs" type="number" min="1" max="365"></label>
+    <label class="flex items-center gap-1"><span class="label-cap !text-[9px]">Start</span>
+      <input name="start" value="{{ request.GET.start|default:'' }}" type="date" class="input !h-6 !py-0 w-28 text-2xs"></label>
+    <label class="flex items-center gap-1"><span class="label-cap !text-[9px]">End</span>
+      <input name="end" value="{{ request.GET.end|default:'' }}" type="date" class="input !h-6 !py-0 w-28 text-2xs"></label>
+    <label class="flex items-center gap-1"><span class="label-cap !text-[9px]">Warehouse</span>
+      <select name="wh" class="select !h-6 !py-0 w-20">
+        <option value="">All</option>
+        {% for wh in warehouses %}
+          <option value="{{ wh }}" {% if request.GET.wh == wh %}selected{% endif %}>{{ wh }}</option>
+        {% endfor %}
+      </select></label>
+    <button class="btn btn-sm" type="submit">Apply</button>
+  </form>
+
+  <div class="panel">
+    {% if columns %}
+    <table class="table-dense">
+      <thead>
+        <tr>
+          {% for col in columns %}<th {% if col in value_cols_names %}!text-right{% endif %}>{{ col }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            {% for cell in row %}
+              <td class="{% if forloop.counter0 in value_cols %}num-cell{% elif forloop.first %}num text-cyan-300{% endif %}">{{ cell }}</td>
+            {% endfor %}
+          </tr>
+        {% empty %}
+          <tr><td colspan="{{ columns|length }}" class="py-6 text-center text-ink-3">No data in this window.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+  <div class="flex justify-end px-1">
+    {% include "partials/pagination.html" with page_obj=page_obj paginator=paginator page_size=page_obj.paginator.per_page querystring=querystring %}
+  </div>
+</div>
+{% endblock %}

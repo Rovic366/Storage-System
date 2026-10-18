@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load ui_extras %}
+
+{% block title %}Maintenance{% endblock %}
+{% block content %}
+<div class="space-y-2 pb-6">
+  <div class="flex h-9 items-center gap-2">
+    <h1 class="text-sm font-bold tracking-wide text-ink">MAINTENANCE</h1>
+    {% if nav_role in 'Admin' or nav_role == 'Storekeeper' or nav_role == 'Technician' %}
+      <a class="btn btn-primary ml-auto" href="{% url 'maintenance:create' %}">+ Schedule</a>
+    {% endif %}
+  </div>
+
+  {# tabs + filters #}
+  <div class="panel flex h-9 items-center gap-0.5 px-1">
+    <a class="navlink {% if tab == 'due' %}active{% endif %}" href="?tab=due">Due 7d</a>
+    <a class="navlink {% if tab == 'overdue' %}active{% endif %}" href="?tab=overdue">Overdue</a>
+    <a class="navlink {% if tab == 'calendar' %}active{% endif %}" href="?tab=calendar">31d plan</a>
+    <form class="ml-auto flex items-center gap-1 pr-1" method="get">
+      <input type="hidden" name="tab" value="{{ tab }}">
+      <select name="type" class="select !h-6 !py-0 w-24" onchange="this.form.submit()">
+        <option value="">All types</option>
+        {% for value, label in task_types %}
+          <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <input name="q" value="{{ request.GET.q }}" class="input !h-6 !py-0 w-40 text-2xs"
+             placeholder="SKU / tool…" aria-label="Search schedules">
+      <button class="btn btn-sm" type="submit">Go</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <table class="table-dense">
+      <thead>
+        <tr>
+          <th>Next due</th><th>SKU</th><th>Tool</th><th>Type</th>
+          <th>Interval</th><th>Last done</th><th>Bin</th><th class="!text-right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in schedules %}
+          <tr>
+            <td class="num font-semibold {% if s.next_due < today %}text-rose-400{% elif s.next_due == today %}text-amber-400{% else %}text-emerald-400{% endif %}">
+              {{ s.next_due|date:"Y-m-d" }}
+            </td>
+            <td class="num text-cyan-300">{{ s.tool.sku }}</td>
+            <td class="text-ink truncate max-w-[220px]">{{ s.tool.name }}</td>
+            <td><span class="badge {% if s.task_type == 'calibration' %}badge-sky{% elif s.task_type == 'repair' %}badge-amber{% elif s.task_type == 'inspection' %}badge-emerald{% else %}badge-slate{% endif %}">{{ s.get_task_type_display }}</span></td>
+            <td class="num text-ink-3">{{ s.interval_days }}d</td>
+            <td class="num text-ink-3">{{ s.last_done|default:"—" }}</td>
+            <td class="num text-ink-3">{{ s.tool.location }}</td>
+            <td class="text-right">
+              {% if nav_role in 'Admin' or nav_role == 'Technician' or nav_role == 'Storekeeper' %}
+                <a class="btn btn-sm" href="{% url 'maintenance:log_task' s.pk %}">Log task</a>
+              {% else %}
+                <span class="label-cap !text-[9px]">read-only</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" class="py-6 text-center text-ink-3">Nothing scheduled.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# recent logs #}
+  <div class="panel">
+    <div class="panel-h"><h2 class="panel-title">Recent task logs</h2></div>
+    <table class="table-dense">
+      <thead><tr><th>Date</th><th>SKU</th><th>Tool</th><th>Type</th><th>By</th><th class="!text-right">Cost</th></tr></thead>
+      <tbody>
+        {% for log in recent_logs %}
+          <tr>
+            <td class="num text-ink-3">{{ log.date|date:"Y-m-d" }}</td>
+            <td class="num text-cyan-300">{{ log.tool.sku }}</td>
+            <td class="text-ink-2 truncate max-w-[240px]">{{ log.tool.name }}</td>
+            <td class="text-ink-3">{{ log.get_task_type_display }}</td>
+            <td class="text-ink-3">{{ log.performed_by.username }}</td>
+            <td class="num-cell text-ink-2">{{ log.cost|money2 }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="py-4 text-center text-ink-3">No logs yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

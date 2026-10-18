@@ -1,0 +1,21 @@
+{% load ui_extras %}
+<section class="panel col-span-12 flex min-h-0 flex-col md:col-span-6 xl:col-span-3" aria-label="Top 10 most-used tools">
+  <header class="panel-h">
+    <h2 class="panel-title">Top Tools · {{ filters.range }}d</h2>
+    <a class="btn btn-sm !h-5 !px-1.5" href="{% url 'inventory:list' %}">All</a>
+  </header>
+  <div class="panel-body p-2">
+    <ol class="space-y-0.5 text-xs">
+      {% for t in top_tools|slice:":10" %}
+      <li class="flex items-center gap-2 rounded px-1 py-0.5 hover:bg-panel-2">
+        <span class="num w-4 text-right text-ink-3" aria-hidden="true">{{ forloop.counter }}</span>
+        <span class="num truncate text-cyan-300">{{ t.sku }}</span>
+        <span class="truncate text-ink-2" title="{{ t.name }}">{{ t.name }}</span>
+        <b class="num ml-auto text-sky-300" aria-label="uses">{{ t.count }}</b>
+      </li>
+      {% empty %}
+      <li class="text-ink-3">No usage in this window.</li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>

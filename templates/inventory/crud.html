@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load ui_extras %}
+
+{% block title %}{% if form.instance.pk %}Edit {{ form.instance.sku }}{% else %}New tool{% endif %} · Inventory{% endblock %}
+{% block content %}
+<form id="crud-form" method="post" enctype="multipart/form-data" novalidate>
+  <div class="panel">
+    {% csrf_token %}
+    <div class="flex h-9 items-center gap-2 border-b border-hairline px-2.5">
+      <h1 class="text-sm font-bold tracking-wide text-ink">
+        <a class="text-cyan-300 hover:underline" href="{% url 'inventory:list' %}">Inventory</a>
+        <span class="mx-1 text-ink-3">/</span>
+        {% if form.instance.pk %}Edit <span class="num">{{ form.instance.sku }}</span>{% else %}New tool{% endif %}
+      </h1>
+      <div class="ml-auto flex gap-1.5">
+        <a class="btn btn-sm" href="{% url 'inventory:list' %}">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 gap-x-2 gap-y-1.5 p-2.5 md:grid-cols-4">
+      {% if form.non_field_errors %}
+        <div class="col-span-4 rounded border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-300">
+          {{ form.non_field_errors.0 }}
+        </div>
+      {% endif %}
+
+      <label><span class="field-label">SKU</span>{{ form.sku }}
+        <p class="min-h-2 text-2xs text-rose-400">{{ form.sku.errors.0|default:'' }}</p></label>
+      <label class="md:col-span-2"><span class="field-label">Name</span>{{ form.name }}
+        <p class="min-h-2 text-2xs text-rose-400">{{ form.name.errors.0|default:'' }}</p></label>
+      {% if form.initial_quantity %}
+        <label><span class="field-label">Opening qty</span>{{ form.initial_quantity }}
+          <p class="min-h-2 text-2xs text-rose-400">{{ form.initial_quantity.errors.0|default:'' }}</p></label>
+      {% endif %}
+      <label class="md:col-span-4"><span class="field-label">Description</span>{{ form.description }}</label>
+      <label><span class="field-label">Category</span>{{ form.category }}
+        <p class="min-h-2 text-2xs text-rose-400">{{ form.category.errors.0|default:'' }}</p></label>
+      <label><span class="field-label">Supplier</span>{{ form.supplier }}
+        <p class="min-h-2 text-2xs text-rose-400">{{ form.supplier.errors.0|default:'' }}</p></label>
+      <label><span class="field-label">Manufacturer</span>{{ form.manufacturer }}</label>
+      <label><span class="field-label">Model no.</span>{{ form.model_number }}</label>
+      <label><span class="field-label">Serial no.</span>{{ form.serial_number }}</label>
+      <label><span class="field-label">Storage bin</span>{{ form.location }}
+        <p class="min-h-2 text-2xs text-rose-400">{{ form.location.errors.0|default:'' }}</p></label>
+      <label><span class="field-label">Unit cost</span>{{ form.unit_cost }}</label>
+      <label><span class="field-label">Reorder level</span>{{ form.reorder_level }}</label>
+      <label><span class="field-label">Max stock level</span>{{ form.max_stock_level }}</label>
+      <label><span class="field-label">Status</span>{{ form.status }}</label>
+      <label><span class="field-label">Condition</span>{{ form.condition }}</label>
+      <label class="flex items-center gap-2 pb-1.5 md:pt-5">
+        {{ form.requires_calibration }}
+        <span class="field-label !mb-0">Requires calibration</span>
+      </label>
+      <label><span class="field-label">Image</span>{{ form.image }}</label>
+    </div>
+  </div>
+</form>
+{% endblock %}

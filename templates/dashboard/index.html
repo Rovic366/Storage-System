@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static ui_extras %}
+
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<form id="dash-filters-mobile" class="mb-1 flex gap-2 sm:hidden">
+  <select name="range" class="select">
+    <option value="7" {% if filters.range == '7' %}selected{% endif %}>7 days</option>
+    <option value="30" {% if filters.range == '30' %}selected{% endif %}>30 days</option>
+    <option value="90" {% if filters.range == '90' %}selected{% endif %}>90 days</option>
+  </select>
+  <select name="wh" class="select">
+    <option value="">All warehouses</option>
+    {% for wh in warehouses %}
+      <option value="{{ wh }}" {% if filters.wh == wh %}selected{% endif %}>{{ wh }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<div id="dash-grid" class="grid grid-cols-12 gap-2">
+  {% include "dashboard/partials/grid.html" %}
+</div>
+{% endblock %}

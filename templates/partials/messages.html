@@ -1,0 +1,20 @@
+{% if messages %}
+<div class="pointer-events-none fixed bottom-3 right-3 z-[70] flex w-96 max-w-[92vw] flex-col gap-1.5"
+     aria-live="polite">
+  {% for message in messages %}
+  <div class="pointer-events-auto flex items-start gap-2 rounded-md border px-2.5 py-1.5 text-xs shadow-lg backdrop-blur
+              {% if message.tags == 'success' %}border-emerald-500/40 bg-emerald-950/90 text-emerald-200
+              {% elif message.tags == 'error' %}border-rose-500/40 bg-rose-950/90 text-rose-200
+              {% elif message.tags == 'warning' %}border-amber-500/40 bg-amber-950/90 text-amber-200
+              {% else %}border-sky-500/40 bg-sky-950/90 text-sky-200{% endif %}"
+       x-data="{show: true}" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+       role="status">
+    <span class="mt-px font-semibold text-[10px] uppercase tracking-widest opacity-80">
+      {% if message.tags == 'error' %}ERR{% elif message.tags == 'warning' %}WRN{% else %}OK{% endif %}
+    </span>
+    <span class="leading-snug">{{ message.message }}</span>
+    <button class="ml-auto opacity-60 hover:opacity-100" @click="show=false" aria-label="Dismiss">✕</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

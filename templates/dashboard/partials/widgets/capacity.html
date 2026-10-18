@@ -1,0 +1,16 @@
+{% load ui_extras %}
+<section class="panel col-span-12 flex min-h-0 flex-col md:col-span-6 xl:col-span-3" aria-label="Warehouse and zone capacity utilization">
+  <header class="panel-h">
+    <h2 class="panel-title">Capacity Utilization</h2>
+    <span class="label-cap !text-[9px]">units / capacity</span>
+  </header>
+  <div class="panel-body space-y-1 overflow-y-auto scroll-thin p-2 pt-1 max-h-[196px]">
+    {% for row in capacity.warehouses %}
+      {% include "dashboard/partials/widgets/_progress_row.html" with row=row bold=True %}
+    {% endfor %}
+    <div class="my-1 h-px bg-hairline"></div>
+    {% for row in capacity.zones %}
+      {% include "dashboard/partials/widgets/_progress_row.html" with row=row %}
+    {% endfor %}
+  </div>
+</section>

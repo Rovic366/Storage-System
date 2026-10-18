@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load ui_extras %}
+
+{% block title %}Fast checkout{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-2 pb-6">
+  <div class="flex h-9 items-center gap-2">
+    <h1 class="text-sm font-bold tracking-wide text-ink">FAST CHECKOUT</h1>
+    {% if overdue_now %}
+      <span class="badge badge-rose num">overdue {{ overdue_now }}</span>
+    {% endif %}
+    <a class="btn btn-sm ml-auto" href="{% url 'transactions:checkout_list' %}">Checkouts ›</a>
+  </div>
+
+  <div class="panel">
+    <div class="panel-h"><h2 class="panel-title">Issue a tool to a borrower</h2></div>
+    <form method="post" autocomplete="off" class="space-y-1.5 p-2.5">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="rounded border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-300">
+          {{ form.non_field_errors.0 }}</div>
+      {% endif %}
+      <p class="grid grid-cols-1 gap-x-2 md:grid-cols-2">
+        <label><span class="field-label">Tool SKU / barcode</span>{{ form.sku }}
+          <p class="min-h-2 text-2xs text-rose-400">{{ form.sku.errors.0|default:'' }}</p>
+        </label>
+        <label><span class="field-label">Borrower</span>{{ form.borrower }}
+          <p class="min-h-2 text-2xs text-rose-400">{{ form.borrower.errors.0|default:'' }}</p>
+        </label>
+        <label><span class="field-label">Due date</span>{{ form.due_at }} {{
+          form.due_at.errors.0|default:'' }}</label>
+        <label><span class="field-label">Note</span>{{ form.notes }}</label>
+      </p>
+      <datalist id="sku-list">
+        {% for t in tool_list %}<option value="{{ t.sku }}">{{ t.name }}</option>{% endfor %}
+      </datalist>
+      <div class="flex justify-end pt-1">
+        <button type="submit" class="btn btn-primary">Check out →</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel p-2.5 text-xs text-ink-3 leading-relaxed">
+    <span class="label-cap">Rules</span> qty of 1 · tool must be available with stock ·
+    one open checkout per tool · status auto-rotates to <b class="text-ink-2">Checked Out</b>.
+  </div>
+</div>
+{% endblock %}

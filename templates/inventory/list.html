@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load ui_extras %}
+
+{% block title %}Inventory{% endblock %}
+{% block content %}
+<div class="grid grid-cols-12 gap-2">
+  {# header row #}
+  <div class="col-span-12 flex h-9 items-center gap-2">
+    <h1 class="text-sm font-bold tracking-wide text-ink">INVENTORY</h1>
+    <span class="badge badge-slate num">{{ total_count }}</span>
+    <div class="ml-auto flex items-center gap-1 text-xs">
+      <a class="btn" href="{% url 'inventory:export_csv' %}?{{ querystring }}" title="Export current view to CSV">CSV</a>
+      {% if nav_role in 'Admin' or nav_role == 'Storekeeper' %}
+        <a class="btn btn-primary" href="{% url 'inventory:create' %}">+ New tool</a>
+      {% endif %}
+      <button class="btn" onclick="toggleDensity()" title="Toggle table density">
+        <span class="label-cap !text-[9px]">Density</span>
+      </button>
+    </div>
+  </div>
+
+  {# filters row #}
+  <form id="inv-filters" class="col-span-12 panel flex flex-wrap items-center gap-1.5 px-2 py-1.5" method="get"
+        hx-get="{% url 'inventory:list' %}"
+        hx-params="*" hx-trigger="input changed delay:300ms, change"
+        hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true">
+
+    <div class="relative w-48 min-w-0">
+      <svg viewBox="0 0 24 24" class="pointer-events-none absolute left-2 top-1/2 size-3 -translate-y-1/2 text-ink-3" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input name="q" value="{{ filters.q }}" class="input !pl-6" placeholder="Search SKU / name / mfr…" aria-label="Search inventory">
+    </div>
+
+    <select name="cat" class="select w-24" aria-label="Category filter">
+      <option value="">Category</option>
+      {% for c in categories %}
+        <option value="{{ c.category_id }}" {% if filters.cat == c.category_id|stringformat:"s" %}selected{% endif %}>{{ c.category__name }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="status" class="select w-28" aria-label="Status filter">
+      <option value="">Status</option>
+      {% for value, label in statuses %}
+        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="wh" class="select w-24" aria-label="Warehouse filter">
+      <option value="">Warehouse</option>
+      {% for wh in warehouses %}
+        <option value="{{ wh }}" {% if filters.wh == wh %}selected{% endif %}>{{ wh }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="loc" class="select w-28" aria-label="Location filter">
+      <option value="">Bin</option>
+      {% for loc in locations %}
+        <option value="{{ loc.pk }}" {% if filters.loc == loc.pk|stringformat:"s" %}selected{% endif %}>{{ loc.code }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="sup" class="select w-28" aria-label="Supplier filter">
+      <option value="">Supplier</option>
+      {% for s in suppliers %}
+        <option value="{{ s.pk }}" {% if filters.sup == s.pk|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="cond" class="select w-20" aria-label="Condition filter">
+      <option value="">Cond</option>
+      {% for value, label in conditions %}
+        <option value="{{ value }}" {% if filters.cond == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="stock" class="select w-24" aria-label="Stock state filter">
+      {% for value, label in stock_states %}
+        <option value="{{ value }}" {% if filters.stock == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="page_size" class="select w-16" aria-label="Rows per page">
+      <option value="25" {% if page_obj.paginator.per_page == 25 %}selected{% endif %}>25</option>
+      <option value="50" {% if page_obj.paginator.per_page == 50 %}selected{% endif %}>50</option>
+      <option value="100" {% if page_obj.paginator.per_page == 100 %}selected{% endif %}>100</option>
+    </select>
+
+    <button class="btn btn-sm" type="button" onclick="var f=document.getElementById('inv-filters');f.reset();htmx.ajax('GET','{{ request.path }}',{swap:'innerHTML',target:'#table-region'})">Reset</button>
+  </form>
+  {# table + drawer region #}
+  <div id="table-region" class="col-span-12">
+    {% include "inventory/partials/tool_table.html" %}
+  </div>
+</div>
+
+{# detail drawer #}
+{% include "inventory/partials/tool_drawer_shell.html" %}
+{% endblock %}

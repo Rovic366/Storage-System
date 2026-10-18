@@ -1,0 +1,71 @@
+{% with nav_items="d i o k m r a" %}
+<aside class="group/sidebar fixed inset-y-0 left-0 z-30 flex w-14 flex-col border-r border-hairline bg-panel
+              transition-[width] duration-150 md:relative md:z-auto"
+       :class="open ? 'w-52' : 'w-14'"
+       x-data="sidebar"
+       aria-label="Primary navigation">
+  {# Brand #}
+  <div class="flex h-10 items-center gap-2 border-b border-hairline px-2.5">
+    <span class="grid size-6 shrink-0 place-items-center rounded-[4px] bg-cyan-500/20 text-cyan-300">
+      <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg>
+    </span>
+    <span class="overflow-hidden whitespace-nowrap text-xs font-bold tracking-[0.12em] text-ink max-md:hidden"
+          x-show="open" x-cloak>STORAGE&nbsp;OS</span>
+  </div>
+
+  <nav class="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto scroll-thin p-2" aria-label="Main">
+    {% url 'dashboard:index' as nav_dash %}{% url 'inventory:list' as nav_inv %}
+    {% url 'transactions:ops_default' as nav_ops %}{% url 'transactions:checkout_list' as nav_chk %}
+    {% url 'maintenance:schedule' as nav_maint %}{% url 'reports:index' as nav_rep %}
+    {% url 'accounts:audit' as nav_audit %}
+
+    <a href="{{ nav_dash }}" class="navlink {% if request.path == nav_dash %}active{% endif %}" data-key="dashboard" title="Dashboard (g d)">
+      <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"/></svg>
+      <span class="truncate max-md:hidden" x-show="open" x-cloak>Dashboard</span>
+    </a>
+    <a href="{{ nav_inv }}" class="navlink {% if request.path == nav_inv %}active{% endif %}" data-key="inventory" title="Inventory (g i)">
+      <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+      <span class="truncate max-md:hidden" x-show="open" x-cloak>Inventory</span>
+    </a>
+
+    <div class="mt-1 flex h-4 items-center">
+      <span class="truncate text-2xs font-semibold uppercase tracking-[0.14em] text-ink-3 max-md:hidden"
+            x-show="open" x-cloak>Operations</span>
+      <span class="h-px w-full bg-hairline md:block" x-show="!open"></span>
+    </div>
+
+    <a href="{% url 'transactions:ops' 'receive' %}" class="navlink {% if request.path == nav_ops %}active{% endif %}" data-key="ops" title="Stock ops (g o)">
+      <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+      <span class="truncate max-md:hidden" x-show="open" x-cloak>Stock ops</span>
+    </a>
+    <a href="{{ nav_chk }}" class="navlink {% if request.path == nav_chk %}active{% endif %}" data-key="checkouts" title="Check-outs (g k)">
+      <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5a2 2 0 012-2h5a2 2 0 012 2v14a2 2 0 01-2 2h-5a2 2 0 01-2-2zM11 12h4M12 9l-2 3 2 3"/><path d="M6 21V9"/></svg>
+      <span class="truncate max-md:hidden" x-show="open" x-cloak>Check-outs</span>
+      {% if bell_counts.overdue %}
+        <span class="badge badge-rose ml-auto absolute right-1">{{ bell_counts.overdue }}</span>
+      {% endif %}
+    </a>
+    <a href="{{ nav_maint }}" class="navlink {% if request.path == nav_maint %}active{% endif %}" data-key="maintenance" title="Maintenance (g m)">
+      <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 7a4 4 0 11-1.5 7.7L8 19l-3-3 4.3-4.5A4 4 0 0114 7z"/></svg>
+      <span class="truncate max-md:hidden" x-show="open" x-cloak>Maintenance</span>
+    </a>
+    <a href="{{ nav_rep }}" class="navlink {% if request.path == nav_rep %}active{% endif %}" data-key="reports" title="Reports (g r)">
+      <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-8"/></svg>
+      <span class="truncate max-md:hidden" x-show="open" x-cloak>Reports</span>
+    </a>
+    {% if nav_role == 'Admin' %}
+      <a href="{{ nav_audit }}" class="navlink {% if request.path == nav_audit %}active{% endif %}" title="Audit trail">
+        <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 4h9l3 3v13H6z"/><path d="M9 10h6M9 14h6"/></svg>
+        <span class="truncate max-md:hidden" x-show="open" x-cloak>Audit trail</span>
+      </a>
+    {% endif %}
+  </nav>
+
+  <div class="border-t border-hairline p-2">
+    <button class="navlink w-full justify-start" x-on:click="toggle" aria-label="Toggle sidebar width">
+      <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 4H4v16h4zM20 12h-7M16 8l4 4-4 4"/></svg>
+      <span class="truncate max-md:hidden" x-show="open" x-cloak>Collapse</span>
+    </button>
+  </div>
+</aside>
+{% endwith %}

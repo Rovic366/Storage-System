@@ -1,0 +1,39 @@
+{% load ui_extras %}
+<section class="panel col-span-12 flex min-h-0 flex-col xl:col-span-4" aria-label="Upcoming maintenance">
+  <header class="panel-h">
+    <h2 class="panel-title">Upcoming Maintenance</h2>
+    <a class="btn btn-sm !h-5 !px-1.5" href="{% url 'maintenance:schedule' %}">Schedule</a>
+  </header>
+  <div class="relative flex-1 min-h-0">
+    <div class="h-full overflow-auto scroll-thin">
+      <table class="table-dense">
+        <thead>
+          <tr>
+            <th>SKU</th><th>Task</th><th class="!text-right">Next due</th>
+            <th class="!text-right">Δ</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in maintenance %}
+          <tr>
+            <td><a class="num text-cyan-300 hover:underline"
+                   href="{% url 'inventory:list' %}?q={{ row.sku }}">{{ row.sku }}</a></td>
+            <td>
+              <span class="badge {% if row.task_type == 'calibration' %}badge-cyan{% elif row.task_type == 'repair' %}badge-rose{% else %}badge-sky{% endif %}">{{ row.task_type }}</span>
+            </td>
+            <td class="num-cell {% if row.state == 'overdue' %}text-rose-400 font-semibold{% elif row.state == 'due' %}text-amber-300{% else %}text-ink-3{% endif %}">
+              {{ row.next_due|date:"m-d" }}
+            </td>
+            <td class="num-cell {% if row.state == 'overdue' %}text-rose-400{% endif %}">{{ row.days }}</td>
+            <td class="text-right">
+              <a class="btn btn-sm !h-5" href="{% url 'maintenance:log_task' row.pk %}">Log</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="py-2 text-center text-ink-3">Nothing scheduled.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

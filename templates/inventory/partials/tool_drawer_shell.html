@@ -1,0 +1,8 @@
+{# Slide-over drawer host: content is HTMX-loaded from /inventory/<pk>/drawer/ #}
+<div id="tool-drawer" class="pointer-events-none fixed inset-y-0 right-0 z-40 hidden"
+     x-data="{close(){ this.classList.add('hidden'); document.getElementById('main').classList.remove('sm:pr-[420px]'); }}"
+     role="dialog" aria-label="Tool detail drawer">
+  <div class="absolute inset-0 bg-surface/60" onclick="document.getElementById('tool-drawer').classList.add('hidden')"></div>
+  <div id="tool-drawer-content" class="pointer-events-auto relative h-full"
+       hx-confirm-offload-remove></div>
+</div>

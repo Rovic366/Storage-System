@@ -1,0 +1,31 @@
+{% load ui_extras humanize %}
+<div class="h-full overflow-auto scroll-thin">
+  <table class="table-dense">
+    <thead>
+      <tr>
+        <th>Time</th><th>Type</th><th>SKU</th><th>Tool</th>
+        <th class="!text-right">Qty</th><th>Move</th><th>By</th><th>Ref</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in feed %}
+      <tr>
+        <td class="num text-ink-3" title="{{ m.timestamp }}">{{ m.timestamp|naturaltime }}</td>
+        <td>
+          <span class="badge {% if m.type == 'receive' %}badge-emerald{% elif m.type == 'issue' %}badge-sky{% elif m.type == 'return' %}badge-cyan{% elif m.type == 'transfer' %}badge-amber{% else %}badge-slate{% endif %}">
+            {{ m.type_label }}
+          </span>
+        </td>
+        <td class="num text-cyan-300">{{ m.sku }}</td>
+        <td class="truncate max-w-[200px]">{{ m.tool }}</td>
+        <td class="num-cell">{{ m.qty }}</td>
+        <td class="num text-ink-3">{{ m.from_loc }}{% if m.from_loc != '—' %} → {% endif %}{{ m.to_loc }}</td>
+        <td class="text-ink-2">{{ m.actor }}</td>
+        <td class="num text-ink-3">{{ m.reference|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="py-2 text-center text-ink-3">No movements recorded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

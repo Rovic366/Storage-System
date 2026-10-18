@@ -1,0 +1,13 @@
+{% load ui_extras %}
+<div class="panel flex min-h-0 flex-col px-2.5 py-2" id="kpi-{{ card.key }}-card"
+     title="{{ card.tooltip }}">
+  <div class="flex items-center justify-between">
+    <span class="label-cap truncate" title="{{ card.tooltip }}">{{ card.label }}</span>
+    <span class="num text-2xs" :class="deltaClass('{{ card.direction }}')">{{ card.delta }}</span>
+  </div>
+  <div class="mt-1 flex items-end justify-between gap-2">
+    <span class="kpi-value truncate">{{ card.value }}</span>
+    <canvas class="spark h-7 w-24" data-tone="{{ card.tone }}" aria-hidden="true"
+            data-points="{{ card.series|asjson }}"></canvas>
+  </div>
+</div>

@@ -1,0 +1,82 @@
+<header class="sticky top-0 z-20 flex h-10 shrink-0 items-center gap-2 border-b border-hairline bg-panel px-2"
+        role="banner">
+  {# mobile menu + global search trigger #}
+  <button class="btn btn-ghost !px-1.5 md:hidden" @click="mobileNav=!mobileNav" aria-label="Open navigation">
+    <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <button class="btn h-7 w-44 md:w-72 !justify-start text-ink-3" @click="paletteOpen=true" aria-label="Global search">
+    <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="M20 20l-3.5-3.5"/></svg>
+    <span class="truncate">Search tools…</span>
+    <span class="kbd ml-auto hidden md:inline-flex">Ctrl K</span>
+  </button>
+
+  <form id="dash-filters" class="ml-1 flex items-center gap-1.5" method="get"
+        hx-get="{% url 'dashboard:grid' %}" hx-target="#dash-grid"
+        hx-swap="innerHTML show:none" hx-push-url="true"
+        title="Dashboard filters">
+    <label class="hidden sm:flex items-center gap-1">
+      <span class="label-cap !text-[10px]">Range</span>
+      <select name="range" class="select !h-6 !w-20 !py-0" @change="applyFilters($el, $event)">
+        <option value="7" {% if filters.range == '7' %}selected{% endif %}>7d</option>
+        <option value="30" {% if filters.range != '7' and filters.range != '90' %}selected{% endif %}>30d</option>
+        <option value="90" {% if filters.range == '90' %}selected{% endif %}>90d</option>
+      </select>
+    </label>
+    <label class="hidden sm:flex items-center gap-1">
+      <span class="label-cap !text-[10px]">WH</span>
+      <select name="wh" class="select !h-6 !w-32 !py-0" @change="applyFilters($el, $event)">
+        <option value="">All warehouses</option>
+        {% for wh in warehouses %}
+          <option value="{{ wh }}" {% if filters.wh == wh %}selected{% endif %}>{{ wh }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </form>
+
+  {# alerts bell #}
+  <div class="relative ml-auto" x-data="{bell:false}" @click.outside="bell=false">
+    <button class="btn btn-ghost !px-1.5" @click="bell=!bell" aria-label="Alerts"
+            x-data aria-haspopup="menu">
+      <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9a6 6 0 1112 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2.5 2.5 0 004 0"/></svg>
+      {% if bell_counts.total %}
+        <span class="absolute -top-1 -right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-rose-500 px-0.5 text-[9px] font-bold text-surface">{{ bell_counts.total }}</span>
+      {% endif %}
+    </button>
+    <div x-show="bell" x-cloak
+         class="absolute right-0 top-9 z-40 w-72 rounded-md border border-hairline bg-panel p-1.5"
+         role="menu">
+      <p class="px-1.5 pb-1 text-2xs font-semibold uppercase tracking-widest text-ink-3">Alerts</p>
+      <a href="{% url 'transactions:checkout_list' %}?tab=overdue" class="flex items-center justify-between rounded px-1.5 py-1 text-xs hover:bg-panel-2">
+        <span class="text-ink-2">Overdue checkouts</span>
+        <b class="num text-rose-400">{{ bell_counts.overdue }}</b>
+      </a>
+      <a href="{% url 'inventory:list' %}?stock=low" class="flex items-center justify-between rounded px-1.5 py-1 text-xs hover:bg-panel-2">
+        <span class="text-ink-2">Low stock</span>
+        <b class="num text-amber-400">{{ bell_counts.low_stock }}</b>
+      </a>
+      <a href="{% url 'maintenance:schedule' %}?tab=due" class="flex items-center justify-between rounded px-1.5 py-1 text-xs hover:bg-panel-2">
+        <span class="text-ink-2">Maintenance due 7d</span>
+        <b class="num text-amber-400">{{ bell_counts.maintenance }}</b>
+      </a>
+    </div>
+  </div>
+
+  {# user menu #}
+  <div class="relative" x-data="{user:false}" @click.outside="user=false">
+    <button class="flex h-7 items-center gap-1.5 rounded-[4px] border border-hairline bg-panel-2 px-1.5 text-xs"
+            @click="user=!user" aria-label="User menu">
+      <span class="grid size-5 place-items-center rounded-full bg-cyan-500/20 text-[10px] font-bold text-cyan-300 uppercase">
+        {{ nav_user.username|slice:":2" }}
+      </span>
+      <span class="hidden md:inline text-ink-2">{{ nav_user.username }}</span>
+      <span class="hidden md:inline label-cap !text-[9px] !tracking-[0.08em] !normal-case text-cyan-300">{{ nav_role }}</span>
+    </button>
+    <div x-show="user" x-cloak class="absolute right-0 top-9 z-40 w-40 rounded-md border border-hairline bg-panel p-1.5">
+      <a class="block rounded px-2 py-1 text-xs hover:bg-panel-2" href="{% url 'admin:index' %}">Django admin</a>
+      <form method="post" action="{% url 'accounts:logout' %}">
+        {% csrf_token %}
+        <button class="block w-full rounded px-2 py-1 text-left text-xs text-rose-300 hover:bg-panel-2">Log out</button>
+      </form>
+    </div>
+  </div>
+</header>

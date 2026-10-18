@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Audit trail{% endblock %}
+{% block content %}
+<div class="space-y-2 pb-6">
+  <div class="flex h-9 items-center gap-2">
+    <h1 class="text-sm font-bold tracking-wide text-ink">AUDIT TRAIL</h1>
+    <form class="ml-auto flex items-center gap-1" method="get">
+      <select name="action" class="select !h-6 !py-0 w-32" onchange="this.form.submit()">
+        <option value="">All actions</option>
+        {% for action in actions %}
+          <option value="{{ action }}" {% if request.GET.action == action %}selected{% endif %}>{{ action }}</option>
+        {% endfor %}
+      </select>
+      <input name="q" value="{{ request.GET.q }}" class="input !h-6 !py-0 w-44 text-2xs"
+             placeholder="Object / user…" aria-label="Search audit log">
+      <button class="btn btn-sm" type="submit">Go</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <table class="table-dense">
+      <thead>
+        <tr><th>When</th><th>User</th><th>Role</th><th>Action</th>
+            <th>Object</th><th>Meta</th></tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+          <tr>
+            <td class="num text-ink-3 whitespace-nowrap">{{ log.created_at|date:"Y-m-d H:i" }}</td>
+            <td class="text-ink-2">{{ log.user.username|default:"—" }}</td>
+            <td class="text-ink-3 text-2xs">{{ log.user.groups.first.name|default:"—" }}</td>
+            <td><span class="badge {% if 'DELETE' in log.action or 'retire' in log.action|lower %}badge-rose{% elif 'CREATE' in log.action or 'receive' in log.action|lower %}badge-emerald{% elif 'EXPORT' in log.action %}badge-amber{% else %}badge-slate{% endif %}">{{ log.action }}</span></td>
+            <td class="text-ink-2 truncate max-w-[260px]" title="{{ log.object_repr }}">{{ log.object_repr|default:"—" }}</td>
+            <td class="text-2xs text-ink-3 truncate max-w-[280px]" title="{{ log.meta }}">{{ log.meta|default:"—" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="py-6 text-center text-ink-3">No audit entries.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex justify-end px-1">
+    {% include "partials/pagination.html" with page_obj=page_obj paginator=paginator page_size=page_obj.paginator.per_page querystring=request.GET.urlencode %}
+  </div>
+</div>
+{% endblock %}

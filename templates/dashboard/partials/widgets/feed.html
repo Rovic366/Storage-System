@@ -1,0 +1,14 @@
+{% load ui_extras %}
+<section class="panel col-span-12 flex min-h-0 flex-col" aria-label="Recent stock movements">
+  <header class="panel-h">
+    <h2 class="panel-title">Live Feed · Recent Movements</h2>
+    <div class="flex items-center gap-1.5">
+      <span class="label-cap !text-[9px] hidden md:inline">auto-refresh 30s</span>
+      <a class="btn btn-sm !h-5 !px-1.5" href="{% url 'reports:table' 'movement-history' %}">History</a>
+    </div>
+  </header>
+  <div id="dash-feed" class="relative flex-1 min-h-0"
+       hx-get="{% url 'dashboard:feed' %}?wh={{ filters.wh }}" hx-trigger="every 30s" hx-swap="innerHTML">
+    {% include "dashboard/partials/widgets/_feed_rows.html" %}
+  </div>
+</section>

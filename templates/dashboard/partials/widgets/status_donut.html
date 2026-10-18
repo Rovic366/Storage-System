@@ -1,0 +1,13 @@
+{% load ui_extras %}
+<section class="panel col-span-12 flex min-h-0 flex-col md:col-span-6 xl:col-span-3" aria-label="Tool status distribution">
+  <header class="panel-h">
+    <h2 class="panel-title">Status Distribution</h2>
+  </header>
+  <div class="panel-body flex p-2">
+    {{ charts.status_dist|json_script:"chart-data-status_dist" }}
+    <div class="h-[168px] flex-1">
+      <canvas data-chart="status_dist"
+              data-summary="Donut chart: number of tools per status."></canvas>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,212 @@
+/* Reusable component patterns extracted with @apply (Tailwind v4 supports @apply in CSS files). */
+
+@layer components {
+  /* ---------- panels ---------- */
+  .panel {
+    @apply rounded-[6px] border border-hairline bg-panel;
+  }
+  .panel-h {
+    @apply flex h-8 shrink-0 items-center justify-between gap-2 border-b border-hairline px-2.5;
+  }
+  .panel-title {
+    @apply text-2xs font-semibold uppercase tracking-[0.08em] text-ink-2;
+  }
+  .panel-body {
+    @apply min-w-0 flex-1 p-2.5;
+  }
+
+  /* ---------- typography helpers ---------- */
+  .label-cap {
+    @apply text-2xs font-medium uppercase tracking-[0.1em] text-ink-3;
+  }
+  .kpi-value {
+    @apply num text-[26px] leading-7 font-bold text-ink;
+  }
+
+  /* ---------- badges ---------- */
+  .badge {
+    @apply inline-flex h-[18px] items-center gap-1 rounded-[3px] border px-1.5 text-2xs font-semibold uppercase leading-none tracking-[0.05em] whitespace-nowrap;
+  }
+  .badge-slate {
+    @apply border-hairline bg-panel-2 text-ink-3;
+  }
+  .badge-emerald {
+    @apply border border-emerald-500/25 bg-emerald-500/10 text-emerald-400;
+  }
+  .badge-amber {
+    @apply border border-amber-500/25 bg-amber-500/10 text-amber-400;
+  }
+  .badge-rose {
+    @apply border border-rose-500/25 bg-rose-500/10 text-rose-400;
+  }
+  .badge-sky {
+    @apply border border-sky-500/25 bg-sky-500/10 text-sky-400;
+  }
+  .badge-cyan {
+    @apply border border-cyan-500/25 bg-cyan-500/10 text-cyan-400;
+  }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    @apply inline-flex h-7 select-none items-center justify-center gap-1.5 rounded-[4px] border border-hairline bg-panel-2 px-2.5 text-xs font-medium whitespace-nowrap text-ink-2 transition-colors duration-150;
+  }
+  .btn:hover {
+    @apply border-ink-3/40 bg-hairline/40 text-ink;
+  }
+  .btn:focus-visible {
+    @apply outline-2 outline-offset-1 outline-accent;
+  }
+  .btn-primary {
+    @apply border-cyan-500/40 bg-cyan-500/15 text-cyan-300 hover:border-cyan-400/50 hover:bg-cyan-500/25 hover:text-cyan-200;
+  }
+  .btn-danger {
+    @apply border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 hover:text-rose-200;
+  }
+  .btn-ghost {
+    @apply border-transparent bg-transparent;
+  }
+  .btn-sm {
+    @apply h-6 px-2 text-2xs;
+  }
+  .btn:disabled {
+    @apply cursor-not-allowed opacity-40;
+  }
+
+  /* ---------- form controls ---------- */
+  .input {
+    @apply h-7 w-full min-w-0 rounded-[4px] border border-hairline bg-surface px-2 text-xs text-ink caret-accent outline-none transition-colors duration-150;
+  }
+  .input:focus {
+    @apply border-cyan-500/50 bg-panel-2;
+  }
+  .input:focus-visible {
+    @apply outline-2 outline-offset-1 outline-accent/60;
+  }
+  .select {
+    @apply h-7 w-full min-w-0 rounded-[4px] border border-hairline bg-surface text-xs text-ink outline-none transition-colors duration-150 pr-1.5 appearance-none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath fill='%236b7280' d='M0 0h8L4 5z'/%3E%3C/svg%3E");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+  }
+  .field-label {
+    @apply block pl-px pb-0.5 text-2xs font-medium uppercase tracking-[0.1em] text-ink-3;
+  }
+  .checkbox {
+    @apply size-3.5 rounded-[3px] border-hairline bg-panel-2 accent-cyan-500;
+  }
+
+  /* ---------- dense tables ---------- */
+  .table-dense {
+    @apply w-full border-separate border-spacing-0 text-xs;
+  }
+  .table-dense thead th {
+    @apply sticky top-0 z-10 h-7 border-b border-hairline bg-panel px-2.5 text-left text-2xs font-semibold uppercase tracking-[0.08em] whitespace-nowrap text-ink-3;
+  }
+  .table-dense thead th.sortable {
+    @apply cursor-pointer select-none hover:text-ink;
+  }
+  .table-dense tbody td {
+    @apply px-2.5 align-middle whitespace-nowrap;
+  }
+  .table-dense tbody tr {
+    @apply border-b border-hairline/60 transition-colors duration-150;
+  }
+  .table-dense tbody tr:nth-child(even) {
+    @apply bg-row-alt;
+  }
+  .table-dense tbody tr:hover {
+    @apply bg-panel-2/80;
+  }
+  .table-dense .num-cell {
+    @apply num text-right;
+  }
+  /* density modes tunable from JS (class on <html>) */
+  .table-dense tbody td {
+    height: var(--row-h, 28px);
+  }
+  .density-compact {
+    --row-h: 24px;
+  }
+  .density-comfortable {
+    --row-h: 34px;
+  }
+
+  /* ---------- navigation ---------- */
+  .navlink {
+    @apply relative flex h-7 items-center gap-2.5 rounded-[4px] px-2 text-xs font-medium text-ink-2 transition-colors duration-150 hover:bg-panel-2 hover:text-ink;
+  }
+  .navlink.active {
+    @apply bg-cyan-500/10 font-semibold text-cyan-300;
+  }
+  .navlink.active::before {
+    @apply absolute top-1 bottom-1 -left-1 w-0.5 rounded-full bg-accent;
+    content: "";
+  }
+  .navlink:focus-visible {
+    @apply outline-2 outline-offset-1 outline-accent;
+  }
+
+  /* ---------- misc ---------- */
+  .kbd {
+    @apply inline-flex h-4.5 min-w-[18px] items-center justify-center rounded-[3px] border border-hairline bg-panel-2 px-1 text-2xs text-ink-3;
+  }
+  .progress-track {
+    @apply h-1 w-full overflow-hidden rounded-full bg-panel-2;
+  }
+  .progress-fill {
+    @apply h-full rounded-full bg-accent transition-[width] duration-300;
+  }
+  .skeleton {
+    @apply relative overflow-hidden rounded-[3px] bg-panel-2;
+  }
+  .skeleton::after {
+    @apply pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.04] to-transparent;
+    content: "";
+    animation: shimmer 1.4s infinite;
+  }
+  .scroll-thin {
+    scrollbar-width: thin;
+  }
+  [x-cloak] {
+    display: none !important;
+  }
+  .htmx-swap-pending {
+    position: relative;
+  }
+  .htmx-swap-pending > * {
+    @apply opacity-35 transition-opacity duration-150 pointer-events-none select-none;
+  }
+  .htmx-swap-pending::after {
+    @apply pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.05] to-transparent;
+    content: "";
+    animation: shimmer 1.4s infinite;
+  }
+  /* Slide-over drawer */
+  #tool-drawer .drawer-shell {
+    @apply flex h-full w-[420px] max-w-[92vw] flex-col border-l border-hairline bg-panel;
+  }
+  .drawer-skeleton {
+    @apply relative flex h-full w-[420px] max-w-[92vw] justify-center border-l border-hairline bg-panel;
+  }
+  .drawer-skeleton::after {
+    @apply pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.05] to-transparent;
+    content: "";
+    animation: shimmer 1.4s infinite;
+  }
+  .tooltip {
+    @apply relative inline-flex;
+  }
+  .tooltip .tooltip-body {
+    @apply invisible absolute z-50 -top-1 left-1/2 w-max max-w-64 -translate-x-1/2 -translate-y-full rounded-[4px] border border-hairline bg-panel-2 px-2 py-1 text-2xs font-normal normal-case leading-snug tracking-normal text-ink-2 opacity-0 transition-opacity duration-150;
+  }
+  .tooltip:hover .tooltip-body,
+  .tooltip:focus-visible .tooltip-body {
+    @apply visible opacity-100;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(0);
+    }
+  }
+}

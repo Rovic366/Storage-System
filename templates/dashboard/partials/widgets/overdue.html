@@ -1,0 +1,36 @@
+{% load ui_extras %}
+<section class="panel col-span-12 flex min-h-0 flex-col xl:col-span-4" aria-label="Overdue checkouts">
+  <header class="panel-h">
+    <h2 class="panel-title">Overdue Checkouts</h2>
+    <a class="btn btn-sm !h-5 !px-1.5" href="{% url 'transactions:checkout_list' %}?tab=overdue">All</a>
+  </header>
+  <div class="relative flex-1 min-h-0">
+    <div class="h-full overflow-auto scroll-thin">
+      <table class="table-dense">
+        <thead>
+          <tr>
+            <th>SKU</th><th>Borrower</th><th class="!text-right">Due</th>
+            <th class="!text-right">Late</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in overdue %}
+          <tr>
+            <td><a class="num text-cyan-300 hover:underline" href="{% url 'inventory:list' %}?q={{ row.sku }}"
+                   data-drawer="{% url 'inventory:drawer' row.tool_pk %}"
+                   title="Open tool drawer">{{ row.sku }}</a></td>
+            <td class="truncate max-w-[110px]">{{ row.borrower }}</td>
+            <td class="num-cell text-rose-300">{{ row.due_at|date:"m-d H:i" }}</td>
+            <td class="num-cell text-rose-400 font-semibold">{{ row.days_late }}d</td>
+            <td class="text-right">
+              <a class="btn btn-sm !h-5" href="{% url 'transactions:checkout_return' row.pk %}">Return</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="py-2 text-center text-ink-3">No overdue checkouts.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

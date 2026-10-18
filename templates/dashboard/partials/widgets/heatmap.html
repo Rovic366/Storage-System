@@ -1,0 +1,41 @@
+{% load ui_extras %}
+<section class="panel col-span-12 flex min-h-0 flex-col xl:col-span-4" aria-label="Checkout activity by weekday and hour">
+  <header class="panel-h">
+    <h2 class="panel-title">Checkout Activity</h2>
+    <span class="label-cap !text-[9px]">weekday × hour · {{ filters.range }}d</span>
+  </header>
+  <div class="panel-body px-2 pb-2 pt-1">
+    <table class="w-full border-separate" style="border-spacing:1px 1px; table-layout:fixed">
+      <caption class="sr-only">Checkout activity by weekday and hour; brighter cyan cells mean more activity</caption>
+      <thead>
+        <tr>
+          <th class="text-left text-[9px] font-medium text-ink-3" style="width:26px"></th>
+          {% for h in heatmap.hours %}
+            <th class="text-center text-[9px] font-medium leading-3 text-ink-3 max-sm:hidden">{{ h }}</th>
+          {% endfor %}
+          <th class="sm:hidden"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in heatmap.rows %}
+        <tr>
+          <td class="text-[9px] font-medium text-ink-3">{{ row.label }}</td>
+          {% for v in row.cells %}
+            <td class="h-4 rounded-[2px] {{ v|heat:heatmap.max }}" aria-label="{{ row.label }} {{ heatmap.hours }}: {{ v }} checkouts"></td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="mt-1 flex items-center gap-2">
+      <span class="label-cap !text-[9px]">Peak {{ heatmap.max }}</span>
+      <div class="flex items-center gap-1">
+        <span class="h-2 w-3 rounded-[2px] bg-cyan-400/15"></span>
+        <span class="h-2 w-3 rounded-[2px] bg-cyan-400/30"></span>
+        <span class="h-2 w-3 rounded-[2px] bg-cyan-400/55"></span>
+        <span class="h-2 w-3 rounded-[2px] bg-cyan-400/80"></span>
+      </div>
+      <span class="label-cap !text-[9px] ml-auto">low → high</span>
+    </div>
+  </div>
+</section>

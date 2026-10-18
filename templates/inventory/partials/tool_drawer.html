@@ -1,0 +1,92 @@
+{% load ui_extras %}
+<div class="drawer-shell flex h-full flex-col" role="document">
+  {# header #}
+  <header class="flex h-10 shrink-0 items-center gap-2 border-b border-hairline px-2.5">
+    <span class="num text-xs font-bold text-cyan-300">{{ tool.sku }}</span>
+    <span class="badge {% if tool.status == 'available' %}badge-emerald{% elif tool.status == 'checked_out' %}badge-sky{% elif tool.status == 'in_maintenance' %}badge-amber{% elif tool.status == 'lost' %}badge-rose{% else %}badge-slate{% endif %}">{{ tool.get_status_display }}</span>
+    <button class="btn btn-sm ml-auto" onclick="document.getElementById('tool-drawer').classList.add('hidden')"
+            aria-label="Close drawer">✕</button>
+  </header>
+
+  {# identity block #}
+  <div class="shrink-0 border-b border-hairline px-2.5 py-2">
+    <div class="flex items-center gap-2.5">
+      {% if tool.image %}
+        <img src="{{ tool.image.url }}" alt="{{ tool.name }}" class="size-11 rounded-md border border-hairline object-cover">
+      {% else %}
+        <span class="grid size-11 shrink-0 place-items-center rounded-md border border-hairline bg-panel-2 text-xs font-bold text-ink-3">
+          {{ tool.name|slice:":2"|upper }}
+        </span>
+      {% endif %}
+      <div class="min-w-0">
+        <h2 class="truncate text-sm font-semibold text-ink" title="{{ tool.name }}">{{ tool.name }}</h2>
+        <p class="num text-2xs text-ink-3">
+          {{ tool.category.name }} · {{ tool.manufacturer|default:"—" }} {{ tool.model_number|default:"" }}
+        </p>
+      </div>
+    </div>
+    <div class="mt-2 grid grid-cols-4 gap-1.5 text-center text-2xs">
+      <div class="rounded border border-hairline bg-panel-2 px-1 py-1">
+        <p class="label-cap !text-[9px]">On hand</p>
+        <p class="num text-sm font-bold {% if tool.stock_state == 'out' %}text-rose-400{% elif tool.stock_state == 'low' %}text-amber-400{% else %}text-emerald-400{% endif %}">{{ tool.quantity_on_hand }}</p>
+      </div>
+      <div class="rounded border border-hairline bg-panel-2 px-1 py-1">
+        <p class="label-cap !text-[9px]">Reorder</p>
+        <p class="num text-sm font-bold text-ink-2">{{ tool.reorder_level }}</p>
+      </div>
+      <div class="rounded border border-hairline bg-panel-2 px-1 py-1">
+        <p class="label-cap !text-[9px]">Value</p>
+        <p class="num text-sm font-bold text-ink-2">{{ tool.total_value|money2 }}</p>
+      </div>
+      <div class="rounded border border-hairline bg-panel-2 px-1 py-1">
+        <p class="label-cap !text-[9px]">Condition</p>
+        <p class="text-sm font-bold text-ink-2">{{ tool.get_condition_display }}</p>
+      </div>
+    </div>
+    <dl class="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-2xs">
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Location</dt><dd class="num text-ink-2">{{ tool.location }}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Warehouse</dt><dd class="num text-ink-2">{{ tool.location.warehouse }}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Supplier</dt><dd class="text-ink-2">{{ tool.supplier.name }}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Lead time</dt><dd class="num text-ink-2">{{ tool.supplier.lead_time_days }}d</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Serial</dt><dd class="num text-ink-2">{{ tool.serial_number|default:"—" }}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Barcode</dt><dd class="num text-ink-2">{{ tool.barcode_value }}</dd></div>
+    </dl>
+    {% if tool.checkouts.open.first %}
+      <div class="mt-2 rounded border border-sky-500/30 bg-sky-500/10 px-2 py-1 text-2xs text-sky-200">
+        Pending return: {{ tool.checkouts.open.first.borrower.username }} · due {{ tool.checkouts.open.first.due_at|date:"Y-m-d H:i" }}
+      </div>
+    {% endif %}
+    <div class="mt-2 flex gap-1.5">
+      <a class="btn btn-sm" href="{% url 'inventory:detail' tool.pk %}">Full page</a>
+      {% if nav_role in 'Admin' or nav_role == 'Storekeeper' %}
+        <a class="btn btn-sm" href="{% url 'inventory:update' tool.pk %}">Edit</a>
+      {% endif %}
+      <a class="btn btn-sm" href="{% url 'transactions:checkout_new' %}?sku={{ tool.sku }}">Check out</a>
+      <a class="btn btn-sm" href="{% url 'maintenance:create' %}?tool={{ tool.pk }}">Schedule</a>
+    </div>
+  </div>
+
+  {# timeline #}
+  <div class="min-h-0 flex-1 overflow-auto scroll-thin px-2.5 py-2">
+    <p class="label-cap mb-1.5">History timeline</p>
+    <ol class="relative space-y-1.5 border-l border-hairline pl-3">
+      {% for event in events %}
+      <li class="relative">
+        <span class="absolute -left-[19px] top-1.5 size-2 rounded-full
+                     {% if event.tone == 'emerald' %}bg-emerald-400
+                     {% elif event.tone == 'sky' %}bg-sky-400
+                     {% elif event.tone == 'amber' %}bg-amber-400
+                     {% else %}bg-slate-500{% endif %}"></span>
+        <div class="flex items-baseline gap-2 text-xs">
+          <span class="label-cap !text-[9px]">{{ event.kind }}</span>
+          <span class="num text-2xs text-ink-3">{{ event.at|date:"m-d H:i" }}</span>
+        </div>
+        <p class="text-2xs text-ink-2">{{ event.text }} <span class="text-ink-3">· {{ event.actor }}</span></p>
+        {% if event.notes %}<p class="text-2xs text-ink-3 italic">{{ event.notes }}</p>{% endif %}
+      </li>
+      {% empty %}
+      <li class="text-2xs text-ink-3">No events recorded.</li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>

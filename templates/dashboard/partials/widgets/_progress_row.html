@@ -1,0 +1,11 @@
+{% load ui_extras %}
+<div class="flex items-center gap-2 text-xs {% if row.pct >= 90 %}text-rose-300{% elif row.pct >= 75 %}text-amber-300{% else %}text-ink-2{% endif %}">
+  <span class="w-28 shrink-0 truncate {% if bold %}font-semibold text-ink{% endif %}" title="{{ row.label }}">{{ row.label }}</span>
+  <div class="progress-track min-w-0 flex-1">
+    <div class="progress-fill {% if row.pct >= 90 %}!bg-rose-400{% elif row.pct >= 75 %}!bg-amber-400{% endif %}"
+         style="width: {{ row.pct }}%"></div>
+  </div>
+  <span class="num shrink-0 text-right text-2xs w-20" aria-label="{{ row.pct }} percent full">
+    {{ row.occupied }}/{{ row.capacity }} · {{ row.pct }}%
+  </span>
+</div>

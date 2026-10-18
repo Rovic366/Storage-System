@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load ui_extras %}
+
+{% block title %}Log task{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-2xl space-y-2 pb-6">
+  <div class="flex h-9 items-center gap-2">
+    <h1 class="text-sm font-bold tracking-wide text-ink">LOG TASK</h1>
+    <a class="btn btn-sm ml-auto" href="{% url 'maintenance:schedule' %}">Maintenance ›</a>
+  </div>
+
+  <div class="panel p-2.5 text-2xs">
+    <div class="grid grid-cols-2 gap-x-3 gap-y-1 md:grid-cols-4">
+      <div class="flex justify-between"><span class="label-cap !text-[9px]">SKU</span><span class="num text-cyan-300">{{ schedule.tool.sku }}</span></div>
+      <div class="flex justify-between"><span class="label-cap !text-[9px]">Tool</span><span class="text-ink-2 truncate">{{ schedule.tool.name }}</span></div>
+      <div class="flex justify-between"><span class="label-cap !text-[9px]">Type</span><span class="text-ink-2">{{ schedule.get_task_type_display }}</span></div>
+      <div class="flex justify-between"><span class="label-cap !text-[9px]">Next due</span><span class="num text-ink-2">{{ schedule.next_due|date:"Y-m-d" }}</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-h"><h2 class="panel-title">Record completed work</h2></div>
+    <form method="post" enctype="multipart/form-data" class="space-y-1.5 p-2.5">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="rounded border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-300">
+          {{ form.non_field_errors.0 }}</div>
+      {% endif %}
+      <p class="grid grid-cols-1 gap-x-2 md:grid-cols-2">
+        <label><span class="field-label">Task type</span>{{ form.task_type }}
+          <p class="min-h-2 text-2xs text-rose-400">{{ form.task_type.errors.0|default:'' }}</p></label>
+        <label><span class="field-label">Date</span>{{ form.date }}
+          <p class="min-h-2 text-2xs text-rose-400">{{ form.date.errors.0|default:'' }}</p></label>
+        <label><span class="field-label">Cost</span>{{ form.cost }}
+          <p class="min-h-2 text-2xs text-rose-400">{{ form.cost.errors.0|default:'' }}</p></label>
+        <label><span class="field-label">Note</span>{{ form.notes }}</label>
+        <label class="md:col-span-2"><span class="field-label">Attachments (optional)</span>{{ form.attachments }}</label>
+      </p>
+      <p class="text-2xs text-ink-3">Next due will roll to: <b class="num text-amber-400">{{ next_due_preview }}</b></p>
+      <div class="flex justify-end pt-1">
+        <button type="submit" class="btn btn-primary">Save log →</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

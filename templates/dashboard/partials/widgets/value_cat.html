@@ -1,0 +1,15 @@
+{% load ui_extras %}
+<section class="panel col-span-12 flex min-h-0 flex-col md:col-span-6 xl:col-span-4" aria-label="Inventory value by category">
+  <header class="panel-h">
+    <h2 class="panel-title">Value by Category</h2>
+    <span class="num text-2xs text-ink-3"
+          id="value-cat-total">{{ charts.value_cat.items|length }} cats</span>
+  </header>
+  <div class="panel-body p-2">
+    {{ charts.value_cat|json_script:"chart-data-value_cat" }}
+    <div class="h-[168px]">
+      <canvas data-chart="value_cat"
+              data-summary="Horizontal bar chart: inventory value in dollars by tool category."></canvas>
+    </div>
+  </div>
+</section>

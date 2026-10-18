@@ -1,0 +1,23 @@
+# Environment
+.env
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Built assets
+theme/static/css/dist/
+
+# Tooling
+.DS_Store
+Thumbs.db

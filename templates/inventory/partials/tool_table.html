@@ -1,0 +1,87 @@
+{% load ui_extras %}
+<div class="panel flex min-h-0 flex-col" x-data="tableCols()">
+  {# ---- bulk toolbar ---- #}
+  <div class="flex h-9 items-center gap-1.5 border-b border-hairline bg-panel-2/40 px-2 text-xs">
+    <span class="label-cap">Selected</span>
+    <b class="num text-ink" id="bulk-count">0</b>
+    <button type="button" class="btn btn-sm" id="bulk-export" onclick="bulkAction('export')" title="Export selected rows to CSV">Export</button>
+    <button type="button" class="btn btn-sm" id="bulk-retire" onclick="bulkAction('retire')" title="Retire selected tools">Retire</button>
+    <div class="relative" x-data="{move:false}" @click.outside="move=false">
+      <button type="button" class="btn btn-sm" onclick="bulkMoveDialog()" x-on:click="move=!move" title="Move selected tools to another bin">Move…</button>
+      <div x-show="move" x-cloak class="absolute left-0 top-7 z-30 w-60 rounded-md border border-hairline bg-panel p-2">
+        <label class="field-label">Destination bin</label>
+        <select id="bulk-move-target" class="select">
+          {% for loc in locations %}
+            <option value="{{ loc.pk }}">{{ loc.code }} ({{ loc.warehouse }})</option>
+          {% endfor %}
+        </select>
+        <button type="button" class="btn btn-primary mt-1.5 w-full justify-center"
+                onclick="bulkAction('move')">Move here</button>
+      </div>
+    </div>
+    <span class="ml-auto label-cap !text-[9px]">Visible columns</span>
+    {% for key, label in col_toggles %}
+      <button type="button" class="btn btn-sm !h-5"
+              :class="hidden.includes('{{ key }}') ? 'opacity-40' : ''"
+              x-on:click="toggleCol('{{ key }}')">{{ label }}</button>
+    {% endfor %}
+  </div>
+
+  <div class="relative min-h-0 flex-1 overflow-auto scroll-thin">
+    <table class="table-dense" id="inv-table" data-bulk-url="{% url 'inventory:bulk' %}">
+      <thead>
+        <tr>
+          <th class="w-7 sticky left-0 bg-panel">
+            <input type="checkbox" class="checkbox" aria-label="Select all rows" onclick="selectAllRows(this)">
+          </th>
+          <th class="sortable col-sku"
+              hx-get="?{{ querystring|sort_url:'sku' }}" hx-target="#table-region"
+              hx-swap="innerHTML" hx-push-url="true">
+            {% if sort == 'sku' %}SKU&nbsp;{% if sort_dir == 'desc' %}▾{% else %}▴{% endif %}{% else %}SKU{% endif %}
+          </th>
+          <th class="sortable" hx-get="?{{ querystring|sort_url:'name' }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true">
+            {% if sort == 'name' %}Name&nbsp;{% if sort_dir == 'desc' %}▾{% else %}▴{% endif %}{% else %}Name{% endif %}
+          </th>
+          <th class="sortable" hx-get="?{{ querystring|sort_url:'category' }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true">
+            {% if sort == 'category' %}Category&nbsp;{% if sort_dir == 'desc' %}▾{% else %}▴{% endif %}{% else %}Category{% endif %}
+          </th>
+          <th class="sortable" hx-get="?{{ querystring|sort_url:'location' }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true">
+            {% if sort == 'location' %}Location&nbsp;{% if sort_dir == 'desc' %}▾{% else %}▴{% endif %}{% else %}Location{% endif %}
+          </th>
+          <th class="sortable" x-show="!hidden.includes('warehouse')"
+              hx-get="?{{ querystring|sort_url:'warehouse' }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true">
+            {% if sort == 'warehouse' %}WH&nbsp;{% if sort_dir == 'desc' %}▾{% else %}▴{% endif %}{% else %}WH{% endif %}
+          </th>
+          <th class="sortable !text-right" hx-get="?{{ querystring|sort_url:'qty' }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true">
+            {% if sort == 'qty' %}Qty&nbsp;{% if sort_dir == 'desc' %}▾{% else %}▴{% endif %}{% else %}Qty{% endif %}
+          </th>
+          <th class="!text-right">Reorder</th>
+          <th class="sortable num-cell" hx-get="?{{ querystring|sort_url:'cost' }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true">
+            {% if sort == 'cost' %}Cost&nbsp;{% else %}Cost{% endif %}
+          </th>
+          <th class="sortable num-cell" x-show="!hidden.includes('value')"
+              hx-get="?{{ querystring|sort_url:'value' }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true">
+            {% if sort == 'value' %}Value&nbsp;{% else %}Value{% endif %}
+          </th>
+          <th class="sortable" hx-get="?{{ querystring|sort_url:'status' }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true">
+            {% if sort == 'status' %}Status&nbsp;{% else %}Status{% endif %}
+          </th>
+          <th x-show="!hidden.includes('condition')">Cond</th>
+          <th class="sortable" x-show="!hidden.includes('updated')"
+              hx-get="?{{ querystring|sort_url:'updated' }}" hx-target="#table-region" hx-swap="innerHTML" hx-push-url="true">Updated</th>
+          <th class="!text-right">Quick edit</th>
+        </tr>
+      </thead>
+      <tbody id="inv-tbody">
+        {% for tool in tools %}
+          {% include "inventory/partials/tool_row.html" with tool=tool %}
+        {% empty %}
+          <tr><td colspan="14" class="py-6 text-center text-ink-3">No tools match the current filters.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% if page_obj %}
+  {% include "partials/pagination.html" with page_obj=page_obj paginator=paginator page_size=page_obj.paginator.per_page querystring=querystring fragment=True %}
+{% endif %}

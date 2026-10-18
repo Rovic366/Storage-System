@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load ui_extras %}
+
+{% block title %}{{ tool.sku }} · {{ tool.name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-2 pb-6">
+  <div class="flex h-9 items-center gap-2">
+    <h1 class="text-sm font-bold tracking-wide text-ink">TOOL · <span class="num text-cyan-300">{{ tool.sku }}</span></h1>
+    <span class="badge {% if tool.status == 'available' %}badge-emerald{% elif tool.status == 'checked_out' %}badge-sky{% elif tool.status == 'in_maintenance' %}badge-amber{% elif tool.status == 'lost' %}badge-rose{% else %}badge-slate{% endif %}">{{ tool.get_status_display }}</span>
+    <div class="ml-auto flex gap-1.5 text-xs">
+      {% if nav_role in 'Admin' or nav_role == 'Storekeeper' %}
+        <a class="btn" href="{% url 'inventory:update' tool.pk %}">Edit</a>
+      {% endif %}
+      <a class="btn" href="{% url 'inventory:export_csv' %}?q={{ tool.sku }}">Export this</a>
+    </div>
+  </div>
+
+  <div class="panel p-2.5">
+    <div class="flex items-center gap-2.5">
+      {% if tool.image %}
+        <img src="{{ tool.image.url }}" alt="{{ tool.name }}" class="size-12 rounded-md border border-hairline object-cover">
+      {% else %}
+        <span class="grid size-12 place-items-center rounded-md border border-hairline bg-panel-2 text-sm font-bold text-ink-3">{{ tool.name|slice:":2"|upper }}</span>
+      {% endif %}
+      <div>
+        <h2 class="text-sm font-semibold text-ink">{{ tool.name }}</h2>
+        <p class="num text-2xs text-ink-3">{{ tool.category.name }} · {{ tool.manufacturer|default:"—" }} {{ tool.model_number|default:"" }} · barcode {{ tool.barcode_value }}</p>
+      </div>
+      <div class="ml-auto grid grid-cols-4 gap-1.5 text-center text-2xs">
+        <div class="rounded border border-hairline bg-panel-2 px-2 py-1">
+          <p class="label-cap !text-[9px]">On hand</p>
+          <p class="num text-base font-bold {% if tool.stock_state == 'out' %}text-rose-400{% elif tool.stock_state == 'low' %}text-amber-400{% else %}text-emerald-400{% endif %}">{{ tool.quantity_on_hand }}</p>
+        </div>
+        <div class="rounded border border-hairline bg-panel-2 px-2 py-1">
+          <p class="label-cap !text-[9px]">Reorder</p><p class="num text-base font-bold text-ink-2">{{ tool.reorder_level }}</p>
+        </div>
+        <div class="rounded border border-hairline bg-panel-2 px-2 py-1">
+          <p class="label-cap !text-[9px]">Unit cost</p><p class="num text-base font-bold text-ink-2">{{ tool.unit_cost|money2 }}</p>
+        </div>
+        <div class="rounded border border-hairline bg-panel-2 px-2 py-1">
+          <p class="label-cap !text-[9px]">Condition</p><p class="text-base font-bold text-ink-2">{{ tool.get_condition_display }}</p>
+        </div>
+      </div>
+    </div>
+    <dl class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-2xs md:grid-cols-4">
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Location</dt><dd class="num text-ink-2">{{ tool.location }}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Warehouse</dt><dd class="num text-ink-2">{{ tool.location.warehouse }}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Supplier</dt><dd class="text-ink-2">{{ tool.supplier.name }}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Calibration</dt><dd class="text-ink-2">{% if tool.requires_calibration %}Required{% else %}—{% endif %}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Max stock</dt><dd class="num text-ink-2">{{ tool.max_stock_level|default:"—" }}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Serial</dt><dd class="num text-ink-2">{{ tool.serial_number|default:"—" }}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Created</dt><dd class="num text-ink-2">{{ tool.created_at|date:"Y-m-d" }}</dd></div>
+      <div class="flex justify-between"><dt class="label-cap !text-[9px]">Updated</dt><dd class="num text-ink-2">{{ tool.updated_at|date:"Y-m-d H:i" }}</dd></div>
+    </dl>
+    {% if tool.description %}<p class="mt-2 text-xs leading-relaxed text-ink-2">{{ tool.description }}</p>{% endif %}
+  </div>
+
+  {% if open_checkout %}
+  <div class="panel flex items-center gap-2 border-sky-500/30 p-2 text-xs text-sky-200">
+    <span class="badge badge-sky">Open</span>
+    Checked out to <b>{{ open_checkout.borrower.username }}</b> at {{ open_checkout.checked_out_at|date:"Y-m-d H:i" }},
+    due <span class="num">{{ open_checkout.due_at|date:"Y-m-d H:i" }}</span>
+    <a class="btn btn-sm ml-auto" href="{% url 'transactions:checkout_return' open_checkout.pk %}">Record return</a>
+  </div>
+  {% endif %}
+
+  <div class="panel">
+    <div class="panel-h"><h2 class="panel-title">History timeline</h2></div>
+    <ol class="relative space-y-1.5 p-2.5 pl-5 border-l border-hairline ml-3">
+      {% for event in events %}
+      <li class="relative">
+        <span class="absolute -left-[22px] top-1.5 size-2 rounded-full
+                     {% if event.tone == 'emerald' %}bg-emerald-400{% elif event.tone == 'sky' %}bg-sky-400
+                     {% elif event.tone == 'amber' %}bg-amber-400{% else %}bg-slate-500{% endif %}"></span>
+        <div class="flex items-baseline gap-2 text-xs">
+          <span class="label-cap !text-[9px]">{{ event.kind }}</span>
+          <span class="num text-2xs text-ink-3">{{ event.at|date:"m-d H:i" }}</span>
+        </div>
+        <p class="text-2xs text-ink-2">{{ event.text }} <span class="text-ink-3">· {{ event.actor }}</span></p>
+        {% if event.notes %}<p class="text-2xs italic text-ink-3">{{ event.notes }}</p>{% endif %}
+      </li>
+      {% empty %}
+      <li class="text-2xs text-ink-3">No events recorded.</li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>
+{% endblock %}

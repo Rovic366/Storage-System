@@ -1,0 +1,43 @@
+{% load ui_extras %}<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 14mm;
+      font-family: "Helvetica";
+    }
+    body { font-size: 9pt; color: #101418; }
+    h1 { font-size: 14pt; margin: 0 0 2mm; }
+    .meta { color: #555; font-size: 8pt; margin-bottom: 5mm; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #eef1f4; text-align: left; padding: 2mm; border-bottom: 0.4mm solid #333; }
+    td { padding: 1.4mm 2mm; border-bottom: 0.2mm solid #ccc; vertical-align: top; }
+    .num { text-align: right; font-family: "Courier"; }
+    footer { text-align: center; font-size: 7pt; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>{{ title }}</h1>
+  <p class="meta">
+    {% for key, value in meta.items %}{{ key }}: {{ value }} &nbsp;|&nbsp; {% endfor %}
+    Generated {{ generated_at }}
+  </p>
+  <table>
+    <thead>
+      <tr>{% for col in columns %}<th{% if col in value_cols %} class="num"{% endif %}>{{ col }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          {% for cell in row %}<td{% if forloop.counter0 in value_cols %} class="num"{% endif %}>{{ cell }}</td>{% endfor %}
+        </tr>
+      {% empty %}
+        <tr><td colspan="{{ columns|length }}">No data.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <footer>Storage OS — Storage System for Industrial Tools</footer>
+</body>
+</html>

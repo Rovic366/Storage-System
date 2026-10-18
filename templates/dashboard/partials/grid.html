@@ -1,0 +1,25 @@
+{% load ui_extras %}
+{# ---------- KPI strip: 8 cards ---------- #}
+<div class="col-span-12 grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
+  {% for card in kpis %}
+    {% include "partials/kpi_card.html" with card=card %}
+  {% endfor %}
+</div>
+
+{# ---------- charts row 1 ---------- #}
+{% include "dashboard/partials/widgets/trend.html" %}
+{% include "dashboard/partials/widgets/value_cat.html" %}
+{% include "dashboard/partials/widgets/status_donut.html" %}
+
+{# ---------- charts row 2 ---------- #}
+{% include "dashboard/partials/widgets/heatmap.html" %}
+{% include "dashboard/partials/widgets/top_tools.html" %}
+{% include "dashboard/partials/widgets/capacity.html" %}
+
+{# ---------- tables row ---------- #}
+{% include "dashboard/partials/widgets/low_stock.html" %}
+{% include "dashboard/partials/widgets/overdue.html" %}
+{% include "dashboard/partials/widgets/maintenance.html" %}
+
+{# ---------- live feed ---------- #}
+{% include "dashboard/partials/widgets/feed.html" %}

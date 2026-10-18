@@ -1,0 +1,33 @@
+{% load ui_extras %}
+<section class="panel col-span-12 flex min-h-0 flex-col xl:col-span-4" aria-label="Low stock alerts">
+  <header class="panel-h">
+    <h2 class="panel-title">Low-Stock Alerts</h2>
+    <a class="btn btn-sm !h-5 !px-1.5" href="{% url 'inventory:list' %}?stock=low">Filter</a>
+  </header>
+  <div class="relative flex-1 min-h-0">
+    <div class="h-full overflow-auto scroll-thin">
+      <table class="table-dense">
+        <thead>
+          <tr>
+            <th>SKU</th><th>Tool</th><th>Location</th>
+            <th class="!text-right">Qty</th><th class="!text-right">Reorder</th><th class="!text-right">Need</th>
+          </tr>
+        </thead>
+        <tbody class="table-dense">
+          {% for row in low_stock %}
+          <tr class="cursor-pointer" data-drawer="{% url 'inventory:drawer' row.pk %}">
+            <td class="num text-cyan-300">{{ row.sku }}</td>
+            <td class="truncate max-w-[160px]">{{ row.name }}</td>
+            <td class="num text-ink-3">{{ row.location }}</td>
+            <td class="num-cell {% if row.state == 'out' %}text-rose-400{% else %}text-amber-400{% endif %}">{{ row.qty }}</td>
+            <td class="num-cell text-ink-3">{{ row.reorder }}</td>
+            <td class="num-cell text-emerald-400">+{{ row.needed }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="py-2 text-center text-ink-3">Nothing below reorder level.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

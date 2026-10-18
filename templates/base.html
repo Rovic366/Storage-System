@@ -1,0 +1,58 @@
+{% load static tailwind_tags %}<!DOCTYPE html>
+<html lang="en" class="dark density-compact" style="height:100%">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Storage OS{% endblock %} · Storage OS</title>
+  <meta name="color-scheme" content="dark light">
+  {# Theme bootstrap: runs before paint to avoid flash; persisted in localStorage #}
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('sos-theme');
+        var d = document.documentElement;
+        d.classList.remove('dark', 'light');
+        d.classList.add(t === 'light' ? 'light' : 'dark');
+        var den = localStorage.getItem('sos-density');
+        d.classList.toggle('density-comfortable', den === 'comfortable');
+        d.classList.toggle('density-compact', den !== 'comfortable');
+      } catch (e) { /* first paint defaults to dark */ }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  {% tailwind_css %}
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJm+hSobJ0t2JXJV3Ic/ezQFTGkRYYAmiXL0XtUYR7m0B4WkQcSN6sTR" crossorigin="anonymous"></script>
+</head>
+<body class="h-full bg-surface font-sans antialiased text-ink overflow-hidden"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<div class="flex h-full" x-data="shell()">
+
+  {% include "partials/sidebar.html" %}
+
+  <div class="flex min-w-0 flex-1 flex-col h-full">
+    {% include "partials/topbar.html" %}
+
+    {# ---------- main scroll region ---------- #}
+    <main id="main"
+          class="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden scroll-thin px-2 pt-1.5 pb-2">
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="flex h-6 shrink-0 items-center justify-between border-t border-hairline px-3 text-2xs text-ink-3">
+      <span>STORAGE OS · tool crib control</span>
+      <span class="num hidden sm:inline">g d g i g o g k g m g r shortcuts · / search</span>
+    </footer>
+  </div>
+
+  {% include "partials/command_palette.html" %}
+  {% include "partials/messages.html" %}
+</div>
+
+<script src="{% static 'scripts/app.js' %}" defer></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="{% static 'scripts/charts.js' %}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
